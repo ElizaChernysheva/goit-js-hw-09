@@ -1,62 +1,42 @@
 import Notiflix from 'notiflix';
 
 const formEl = document.querySelector('.form');
-const inputDelayEl = document.querySelector('input[name="delay"]');
-const inputStepEl = document.querySelector('input[name="step"]');
-const inputAmountEl = document.querySelector('input[name="amount"]');
-
-let delayTime = 0;
-let step = 0;
-let amount = 0;
-let position = 0;
 
 function createPromise(position, delay) {
+  const shouldResolve = Math.random() > 0.3;
+  const obj = { position, delay };
+
   return new Promise((resolve, reject) => {
-    const shouldResolve = Math.random() > 0.3;
-    setTimeout(() => {
-      if (shouldResolve) {
-        resolve({
-          position,
-          delay,
-        });
-      } else {
-        reject({
-          position,
-          delay,
-        });
-      }
-    }, delay);
+    if (shouldResolve) {
+      resolve(obj);
+    } else {
+      reject(obj);
+    }
   });
 }
 
 formEl.addEventListener('submit', event => {
   event.preventDefault();
-  delayTime = inputDelayEl.value;
-  step = inputStepEl.value;
-  amount = inputAmountEl.value;
+  let delay = Number(event.currentTarget.delay.value);
+  let step = Number(event.currentTarget.step.value);
+  let amount = Number(event.currentTarget.amount.value);
 
-  for (let i = 0; i < amount; i += 1) {
-    setTimeout(() => {
-      position += 1;
-      delayTime = Number(delayTime);
-
-      if (i) {
-        delayTime += Number(step);
-      }
-
-      createPromise(position, delayTime)
-        .then(({ position, delay }) => {
+  for (let position = 1; position <= amount; position += 1) {
+    createPromise(position, delay)
+      .then(({ position, delay }) => {
+        setTimeout(() => {
           Notiflix.Notify.success(
             `✅ Fulfilled promise ${position} in ${delay}ms`
           );
-        })
-        .catch(({ position, delay }) => {
+        }, delay);
+      })
+      .catch(({ position, delay }) => {
+        setTimeout(() => {
           Notiflix.Notify.failure(
             `❌ Rejected promise ${position} in ${delay}ms`
           );
-        });
-    }, delayTime);
+        }, delay);
+      });
+    delay += step;
   }
-
-  position = 0;
 });
