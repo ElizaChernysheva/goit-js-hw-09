@@ -1,5 +1,6 @@
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
+import Notiflix from 'notiflix';
 
 const inputEl = document.querySelector('input[type="text"]');
 const btnEl = document.querySelector('button[data-start]');
@@ -16,7 +17,7 @@ const options = {
     console.log(selectedDates[0]);
 
     if (selectedDates[0] < new Date()) {
-      window.alert('Please choose a date in the future');
+      Notiflix.Notify.failure('Please choose a date in the future');
     } else {
       btnEl.removeAttribute('disabled', 'disabled');
     }
@@ -30,12 +31,13 @@ flatpickr(inputEl, options);
 
 function timeCounter(time) {
   timeLeftToDate = time - 1000;
-  console.log(timeLeftToDate);
 
   convertMs(timeLeftToDate);
 }
 
 btnEl.addEventListener('click', event => {
+  btnEl.setAttribute('disabled', 'disabled');
+
   let timerId = setInterval(() => {
     timeCounter(timeLeftToDate);
     const Obj = convertMs(timeLeftToDate);
@@ -49,6 +51,7 @@ btnEl.addEventListener('click', event => {
 
   if (timeLeftToDate === 0) {
     clearInterval(timerId);
+    return;
   }
 });
 
